@@ -1,6 +1,6 @@
 {
   "name": "spf-check",
-  "version": "0.4.3",
+  "version": "0.4.6",
   "description": "SPF validator",
   "keywords": [
     "spf",
@@ -10,7 +10,7 @@
   "dependencies": {
     "ipaddr.js": "^1.8.1",
     "lodash": "^4.17.11",
-    "spf-parse": "^1.0.4",
+    "spf-parse": "^1.0.6",
     "tldjs": "^2.3.1"
   },
   "devDependencies": {
@@ -28,5 +28,16 @@
     "exclude": [
       "spec/"
     ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cakemail/node-spf-check.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cakemail/node-spf-check/issues"
+  },
+  "homepage": "https://github.com/cakemail/node-spf-check#readme",
+  "publishConfig": {
+    "registry": "https://npm.ovh.cakemail.io"
   }
 }
