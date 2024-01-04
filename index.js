@@ -103,9 +103,17 @@ class SPF {
         }
 
         // Then it performs an address lookup on each MX name returned.
-        for (let e = 0; e < exchanges.length; e++) {
-            exchanges[e].records = await this.resolveDNS(exchanges[e].exchange, rrtype, /*lookupLimit=*/false);
-        };
+        let promises = exchanges
+            .map(exchange => this
+                .resolveDNS(exchange.exchange, rrtype, /*lookupLimit=*/false)
+                .catch(() => [])
+            );
+
+        await Promise
+            .all(promises)
+            .then((results) => results
+                .forEach((result, i) => exchanges[i].records = result)
+            );
 
         return _.sortBy(exchanges, 'priority');
     }
@@ -172,15 +180,15 @@ class SPF {
         }
 
         if (_.has(parsed, 'messages')) {
-           const errors = _.filter(parsed.messages, ['type', 'error']);
+            const errors = _.filter(parsed.messages, ['type', 'error']);
 
-           if (errors.length > 0) {
-               // When multiple parse errors are found, return the first one so
-               // they can be fixed one at the time.
-               throw new SPFResult(results.PermError, errors.shift().message);
-           }
+            if (errors.length > 0) {
+                // When multiple parse errors are found, return the first one so
+                // they can be fixed one at the time.
+                throw new SPFResult(results.PermError, errors.shift().message);
+            }
 
-           this.warnings = _.concat(this.warnings, _.map(_.filter(parsed.messages, ['type', 'warning']), 'message'));
+            this.warnings = _.concat(this.warnings, _.map(_.filter(parsed.messages, ['type', 'warning']), 'message'));
         }
 
         // True when there is an "all" mechanism.
@@ -381,7 +389,7 @@ class SPF {
     }
 }
 
-module.exports = async function(ip, domain, sender, options) {
+module.exports = async function (ip, domain, sender, options) {
     let spf = new SPF(domain, sender, options);
     let res = await spf.check(ip);
 
