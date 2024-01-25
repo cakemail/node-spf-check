@@ -94,7 +94,9 @@ class SPF {
 
     async resolveMX(hostname, rrtype) {
         // First performs an MX lookup.
-        const exchanges = await this.resolveDNS(hostname, 'MX');
+        // Ignore errors and return an empty array instead; this allows an MX mechianism to not resolve and still be valid.
+        // RFC is not precisely clear about this, but it can be interpreted that way.
+        const exchanges = await this.resolveDNS(hostname, 'MX').catch(() => []);
 
         // Check the number of exchanges to retrieve A records and limit before
         // doing any DNS lookup.
