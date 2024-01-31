@@ -382,6 +382,10 @@ class SPF {
 
             // TODO implement ptr
             // TODO implement exists
+            case 'ptr':
+                case 'exists':
+                    // not implemented, assume false
+                    return false;
 
             case 'all':
                 return true;
