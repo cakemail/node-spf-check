@@ -92,11 +92,25 @@ class SPF {
         };
     }
 
+    async resolveA(hostname, rrtype) {
+        return this.resolveDNS(hostname, rrtype).catch((error) => {
+            if(error.result === results.TempError) {
+                return [];
+            }
+            throw error;
+        });
+    }
+
     async resolveMX(hostname, rrtype) {
         // First performs an MX lookup.
         // Ignore errors and return an empty array instead; this allows an MX mechianism to not resolve and still be valid.
         // RFC is not precisely clear about this, but it can be interpreted that way.
-        const exchanges = await this.resolveDNS(hostname, 'MX').catch(() => []);
+        const exchanges = await this.resolveDNS(hostname, 'MX').catch((error) => {
+            if(error.result === results.TempError) {
+                return [];
+            }
+            throw error;
+        });
 
         // Check the number of exchanges to retrieve A records and limit before
         // doing any DNS lookup.
@@ -215,7 +229,7 @@ class SPF {
 
             if (mechanism.type === 'a') {
                 mechanism.resolve = async () => {
-                    return { records: await this.resolveDNS(mechanism.value || hostname, rrtype) };
+                    return { records: await this.resolveA(mechanism.value || hostname, rrtype) };
                 };
             }
 
